@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>দৈনিক হিসাব</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Siyam Rupali', sans-serif;
+      background: #f4f8fb;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    .tarikh {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+    .tarikh input {
+      font-size: 16px;
+      padding: 6px 12px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #e6f0ff;
+      font-weight: bold;
+      color: #000;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      border: none;
+      text-align: center;
+      font-size: 14px;
+      background: transparent;
+      outline: none;
+    }
+    .summary {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .summary span {
+      font-weight: bold;
+      color: #1a237e;
+    }
+    button {
+      display: block;
+      margin: 15px auto;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      background: #28a745;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #1e7e34;
+    }
+    .input-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: space-between;
+    }
+    .input-panel label {
+      flex: 1 1 22%;
+    }
+    .input-panel input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      th, td {
+        font-size: 12px;
+        padding: 6px;
+      }
+      .tarikh input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="capture" class="container">
+    <div class="tarikh">
+      বিসমিল্লাহির রাহমানির রাহিম &nbsp;&nbsp;&nbsp; তারিখ:
+      <input type="text" id="userDate" placeholder="DD/MM/YYYY">
+    </div>
+
+    <div class="input-panel">
+      <label>বয়লার পিস <input type="number" id="boiler" value="0"></label>
+      <label>সোনালী পিস <input type="number" id="sonali" value="0"></label>
+      <label>লেয়ার পিস <input type="number" id="layer" value="0"></label>
+      <label>ইনভেস্ট (টাকা) <input type="number" id="invest" value="0"></label>
+    </div>
+
+    <table id="hisabTable">
+      <thead>
+        <tr>
+          <th>কেজি</th>
+          <th>পিস</th>
+          <th>পদ</th>
+          <th>টাকা</th>
+          <th>মোট</th>
+          <th>জমা</th>
+          <th>বাকি</th>
+          <th>খরচ</th>
+          <th>নাম</th>
+        </tr>
+      </thead>
+      <tbody id="hisabBody"></tbody>
+    </table>
+
+    <div class="summary" id="summaryBox">
+      📅 <span>আজকের হিসাব:</span><br>
+      🔸 ইনভেস্ট: <span id="totalInvest">0</span> টাকা<br>
+      🔸 বিক্রয়: <span id="totalSell">0</span> টাকা<br>
+      🔸 আয় (ইনকাম): <span id="totalIncome">0</span> টাকা<br>
+      🔸 বাকি: <span id="totalDue">0</span> টাকা<br>
+      🔸 খরচ: <span id="totalExpense">0</span> টাকা
+    </div>
+
+    <button onclick="calculateSummary()">📈 হিসাব করুন</button>
+    <button onclick="saveAsImage()">📸 ইমেজ ডাউনলোড</button>
+  </div>
+
+  <script>
+    function createRow() {
+      const row = document.createElement("tr");
+      for (let i = 0; i < 9; i++) {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.addEventListener("input", handleInputCheck);
+        td.appendChild(input);
+        row.appendChild(td);
+      }
+      return row;
+    }
+
+    function handleInputCheck() {
+      const table = document.getElementById("hisabBody");
+      const filledRows = Array.from(table.rows).filter(row =>
+        Array.from(row.cells).some(cell => cell.querySelector("input").value.trim() !== "")
+      );
+      if (filledRows.length >= table.rows.length) {
+        for (let i = 0; i < 5; i++) {
+          table.appendChild(createRow());
+        }
+      }
+    }
+
+    function calculateSummary() {
+      const invest = parseFloat(document.getElementById("invest").value) || 0;
+      let totalSell = 0, due = 0, expense = 0;
+
+      const rows = document.querySelectorAll("#hisabBody tr");
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td input");
+        if (cols.length >= 9) {
+          totalSell += parseFloat(cols[3].value) || 0;  // টাকা (বিক্রয়)
+          due += parseFloat(cols[6].value) || 0;        // বাকি
+          expense += parseFloat(cols[7].value) || 0;    // খরচ
+        }
+      });
+
+      const income = totalSell - invest;
+
+      document.getElementById("totalInvest").textContent = invest;
+      document.getElementById("totalSell").textContent = totalSell;
+      document.getElementById("totalIncome").textContent = income;
+      document.getElementById("totalDue").textContent = due;
+      document.getElementById("totalExpense").textContent = expense;
+    }
+
+    function saveAsImage() {
+      const container = document.getElementById("capture");
+      const userDate = document.getElementById("userDate").value || "**/**/**";
+      document.getElementById("userDate").style.display = "none";
+      const newText = document.createElement("div");
+      newText.innerText = userDate;
+      newText.style.fontSize = "16px";
+      newText.style.marginTop = "5px";
+      newText.id = "dateText";
+      document.querySelector(".tarikh").appendChild(newText);
+
+      html2canvas(container).then(canvas => {
+        const link = document.createElement("a");
+        link.download = 'hisab_image.png';
+        link.href = canvas.toDataURL();
+        link.click();
+
+        document.getElementById("userDate").style.display = "inline-block";
+        document.getElementById("dateText").remove();
+      });
+    }
+
+    window.onload = () => {
+      const table = document.getElementById("hisabBody");
+      for (let i = 0; i < 30; i++) {
+        table.appendChild(createRow());
+      }
+    }
+  </script>
+
+</body>
+</html>
