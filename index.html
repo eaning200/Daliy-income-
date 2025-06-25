@@ -58,6 +58,9 @@
       background: transparent;
       outline: none;
     }
+    td:last-child input {
+      min-width: 120px;
+    }
     .summary {
       margin-top: 20px;
       padding: 15px;
@@ -125,7 +128,7 @@
       <label>বয়লার পিস <input type="number" id="boiler" value="0"></label>
       <label>সোনালী পিস <input type="number" id="sonali" value="0"></label>
       <label>লেয়ার পিস <input type="number" id="layer" value="0"></label>
-      <label>ইনভেস্ট <input type="number" id="invest" value="0"></label>
+      <label> ইনভেস্ট <input type="number" id="invest" value="0"></label>
     </div>
 
     <table id="hisabTable">
@@ -165,6 +168,9 @@
         const td = document.createElement("td");
         const input = document.createElement("input");
         input.type = "text";
+        if (i === 8) {
+          input.style.minWidth = "120px"; // নাম ঘর বড়
+        }
         input.addEventListener("input", handleInputCheck);
         td.appendChild(input);
         row.appendChild(td);
@@ -192,7 +198,7 @@
       rows.forEach(row => {
         const cols = row.querySelectorAll("td input");
         if (cols.length >= 9) {
-          totalSell += parseFloat(cols[3].value) || 0;  // টাকা (বিক্রয়)
+          totalSell += parseFloat(cols[3].value) || 0;  // টাকা
           due += parseFloat(cols[6].value) || 0;        // বাকি
           expense += parseFloat(cols[7].value) || 0;    // খরচ
         }
