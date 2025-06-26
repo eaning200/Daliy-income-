@@ -134,8 +134,9 @@
     <table id="hisabTable">
       <thead>
         <tr>
-          <th>কেজি</th>
+          <th>ওজন</th>
           <th>পিস</th>
+          <th>হিজা</th>
           <th>পদ</th>
           <th>টাকা</th>
           <th>মোট</th>
@@ -169,7 +170,7 @@
         const input = document.createElement("input");
         input.type = "text";
         if (i === 8) {
-          input.style.minWidth = "120px"; // নাম ঘর বড়
+          input.style.minWidth = "100px"; // নাম ঘর বড়
         }
         input.addEventListener("input", handleInputCheck);
         td.appendChild(input);
