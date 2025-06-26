@@ -20,12 +20,17 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       border-radius: 10px;
     }
+
+    /* উপরের বিসমিল্লাহ ও তারিখ সেন্টার */
     .tarikh {
       text-align: center;
       margin-bottom: 20px;
       font-size: 18px;
       font-weight: bold;
       color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .tarikh input {
       font-size: 16px;
@@ -33,7 +38,35 @@
       width: 200px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      margin-top: 5px;
+      text-align: center;
     }
+
+    /* ইনপুট প্যানেল সেন্টার */
+    .input-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      text-align: center;
+    }
+    .input-panel label {
+      flex: 1 1 22%;
+      max-width: 200px;
+      font-weight: 600;
+    }
+    .input-panel input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    /* টেবিল ডিজাইন */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -58,21 +91,32 @@
       background: transparent;
       outline: none;
     }
-    td:last-child input {
-      min-width: 120px;
+    td input {
+      min-width: 45px; /* ১ শব্দের জায়গা */
     }
+    td:last-child input {
+      min-width: 160px; /* নাম ঘর বড় */
+    }
+
+    /* summary বক্স মাঝখানে */
     .summary {
-      margin-top: 20px;
+      margin: 20px auto;
       padding: 15px;
       background: #f0f0f0;
       border-radius: 10px;
       font-size: 16px;
       line-height: 1.8;
+      text-align: center;
+      max-width: 600px;
+      font-weight: 600;
+      color: #1a237e;
     }
     .summary span {
       font-weight: bold;
       color: #1a237e;
     }
+
+    /* বাটন ডিজাইন */
     button {
       display: block;
       margin: 15px auto;
@@ -84,27 +128,13 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.3s;
+      font-weight: 600;
     }
     button:hover {
       background: #1e7e34;
     }
-    .input-panel {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-      justify-content: space-between;
-    }
-    .input-panel label {
-      flex: 1 1 22%;
-    }
-    .input-panel input {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      text-align: center;
-    }
+
+    /* Responsive */
     @media (max-width: 600px) {
       th, td {
         font-size: 12px;
@@ -113,6 +143,10 @@
       .tarikh input {
         width: 100%;
       }
+      .input-panel label {
+        flex: 1 1 45%;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -120,25 +154,34 @@
 
   <div id="capture" class="container">
     <div class="tarikh">
-      বিসমিল্লাহির রাহমানির রাহিম &nbsp;&nbsp;&nbsp; তারিখ:
-      <input type="text" id="userDate" placeholder="DD/MM/YYYY">
+      <div>বিসমিল্লাহির রাহমানির রাহিম</div>
+      <label for="userDate">তারিখ:</label>
+      <input type="text" id="userDate" placeholder="DD/MM/YYYY" autocomplete="off" />
     </div>
 
     <div class="input-panel">
-      <label>বয়লার পিস <input type="number" id="boiler" value="0"></label>
-      <label>সোনালী পিস <input type="number" id="sonali" value="0"></label>
-      <label>লেয়ার পিস <input type="number" id="layer" value="0"></label>
-      <label> ইনভেস্ট <input type="number" id="invest" value="0"></label>
+      <label>বয়লার পিস
+        <input type="number" id="boiler" value="0" min="0">
+      </label>
+      <label>সোনালী পিস
+        <input type="number" id="sonali" value="0" min="0">
+      </label>
+      <label>লেয়ার পিস
+        <input type="number" id="layer" value="0" min="0">
+      </label>
+      <label>ইনভেস্ট (টাকা)
+        <input type="number" id="invest" value="0" min="0">
+      </label>
     </div>
 
-    <table id="hisabTable">
+    <table id="hisabTable" aria-label="হিসাব টেবিল">
       <thead>
         <tr>
-          <th>ওজন</th>
+          <th>কেজি</th>
           <th>পিস</th>
-          <th>হিজা</th>
           <th>পদ</th>
           <th>টাকা</th>
+          <th>হিজা</th>
           <th>মোট</th>
           <th>জমা</th>
           <th>বাকি</th>
@@ -149,7 +192,7 @@
       <tbody id="hisabBody"></tbody>
     </table>
 
-    <div class="summary" id="summaryBox">
+    <div class="summary" id="summaryBox" role="region" aria-live="polite" aria-atomic="true">
       📅 <span>আজকের হিসাব:</span><br>
       🔸 ইনভেস্ট: <span id="totalInvest">0</span> টাকা<br>
       🔸 বিক্রয়: <span id="totalSell">0</span> টাকা<br>
@@ -165,12 +208,14 @@
   <script>
     function createRow() {
       const row = document.createElement("tr");
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < 10; i++) {
         const td = document.createElement("td");
         const input = document.createElement("input");
         input.type = "text";
-        if (i === 8) {
-          input.style.minWidth = "100px"; // নাম ঘর বড়
+        if (i === 9) {
+          input.style.minWidth = "160px"; // নাম ঘর বড়
+        } else {
+          input.style.minWidth = "45px"; // ১ শব্দের ঘর
         }
         input.addEventListener("input", handleInputCheck);
         td.appendChild(input);
@@ -198,30 +243,33 @@
       const rows = document.querySelectorAll("#hisabBody tr");
       rows.forEach(row => {
         const cols = row.querySelectorAll("td input");
-        if (cols.length >= 9) {
+        if (cols.length >= 10) {
           totalSell += parseFloat(cols[3].value) || 0;  // টাকা
-          due += parseFloat(cols[6].value) || 0;        // বাকি
-          expense += parseFloat(cols[7].value) || 0;    // খরচ
+          due += parseFloat(cols[7].value) || 0;        // বাকি
+          expense += parseFloat(cols[8].value) || 0;    // খরচ
         }
       });
 
       const income = totalSell - invest;
 
-      document.getElementById("totalInvest").textContent = invest;
-      document.getElementById("totalSell").textContent = totalSell;
-      document.getElementById("totalIncome").textContent = income;
-      document.getElementById("totalDue").textContent = due;
-      document.getElementById("totalExpense").textContent = expense;
+      document.getElementById("totalInvest").textContent = invest.toFixed(2);
+      document.getElementById("totalSell").textContent = totalSell.toFixed(2);
+      document.getElementById("totalIncome").textContent = income.toFixed(2);
+      document.getElementById("totalDue").textContent = due.toFixed(2);
+      document.getElementById("totalExpense").textContent = expense.toFixed(2);
     }
 
     function saveAsImage() {
       const container = document.getElementById("capture");
       const userDate = document.getElementById("userDate").value || "**/**/**";
       document.getElementById("userDate").style.display = "none";
+
+      // তারিখ টেক্সট এলিমেন্ট তৈরি করে যোগ করলাম
       const newText = document.createElement("div");
       newText.innerText = userDate;
       newText.style.fontSize = "16px";
       newText.style.marginTop = "5px";
+      newText.style.textAlign = "center";
       newText.id = "dateText";
       document.querySelector(".tarikh").appendChild(newText);
 
@@ -245,4 +293,4 @@
   </script>
 
 </body>
-</html>
+  </html>
